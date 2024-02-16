@@ -1,10 +1,5 @@
-import codecs
-import inspect
-import os
 import re
-import sys
 
-import phone_book
 from prettytable import PrettyTable
 
 
@@ -85,10 +80,10 @@ class Phone_Book:
         test_table.field_names = self.table_sample.field_names
         with open("Data.txt", "a") as p_book_a:
             self.number_of_records += 1
-            new_line_view = ["ID_" + str(self.number_of_records), input("enter first name\t"), input(
-                "enter last name\t"), input(
-                "enter patronymic\t"), input("enter company_name\t"), input(
-                "enter home_number\t"), input("enter mobile_number\t")]
+            new_line_view = ["ID_" + str(self.number_of_records), input("Введите фамилию "), input(
+                "Имя "), input(
+                "Отчество "), input("Название компании "), input(
+                "Домашний телефон "), input("Мобильный телефон ")]
             new_line_text = "\n" + "\t".join(new_line_view)
             test_table.add_row(new_line_view)
             print("Добавить данную строку в файл?\n", test_table)
@@ -109,37 +104,44 @@ class Phone_Book:
         self.editing_table = PrettyTable(align="l")
         self.editing_table.field_names = self.table_sample.field_names
         str_counter = -1
+        Finded = False
         target_for_edit = self.custom_input("Введите числовое значение индекса строки, которую хотите изменить\n")
         with open("Data.txt") as p_book_edit:
             edit_list_from_file = list(p_book_edit)
             for edit_str in edit_list_from_file:
                 str_counter += 1
                 if re.search(f"\\bID_{target_for_edit}\\b", edit_str) != None:
+                    Finded = True
                     edit_list_for_edit = edit_str[:-1].split("\t")
                     self.editing_table.add_row(edit_list_for_edit)
                     print(self.editing_table)
-                    edit_helper = self.custom_input("Введите код поля, которое нуждается в корректировке. ID: 0, Фамилия: 1, Имя: 2, Отчество: 3, Компания: 4, Домашний телефон: 5, Мобильный телефон: 6 \n")
-                    if edit_helper not in range(0, 6):
-                        return print("Указанный индекс не соответствует имеющимся полям")
-                    edit_check = input("Введите новое значение\n")
+                    edit_helper = self.custom_input(
+                        "Введите код поля, которое нуждается в корректировке. ID: 0, Фамилия: 1, Имя: 2, Отчество: 3, Компания: 4, Домашний телефон: 5, Мобильный телефон: 6 \n")
+                    if edit_helper not in range(0, 7):
+                        print("Указанный индекс не соответствует имеющимся полям")
+                        break
+                    if edit_helper == 0:
+                        edit_check = self.custom_input(
+                            "Введите новое числовое значение (ID_ будет добавлено автоматически)\n")
+                        if edit_check in self.indexses:
+                            print("Ошибка. Данный индекс уже используется")
+                            break
+                        edit_check = "ID_" + str(edit_check)
+                    else:
+                        edit_check = input("Введите новое значение\n")
                     edit_list_for_edit[edit_helper] = edit_check
                     edit_list_from_file[str_counter] = "\t".join(edit_list_for_edit) + "\n"
                     with open("Data.txt", "w") as final_edit:
                         final_edit.writelines(edit_list_from_file)
                         self.editing_table.clear_rows()
-                        return
+                        break
+            if not Finded:
+                print("Искомая строка не найдена")
+        self.initializing()
 
-
-
-
-            if not finded:
-                return print("Искомая строка не найдена")
-
-
-#        введите индекс строки, которую хотите изменить
-#        введите номер поля, которое хотите изменить
-#        if self.indexses #цифры
-
+    #        введите индекс строки, которую хотите изменить
+    #        введите номер поля, которое хотите изменить
+    #        if self.indexses #цифры
 
     def initializing(self) -> None:
         """Функция просматривает все строки текстового файла и модифицирует переменную, указывающую на максимальный
@@ -151,6 +153,7 @@ class Phone_Book:
         """
 
         with open("Data.txt") as p_book:
+            p_book.seek(0)
             list_data = list(p_book)
             self.clear_lines = [elem.strip("\n") for elem in list_data]
             self.splited_list = [elem.split("\t") for elem in self.clear_lines]
@@ -225,7 +228,7 @@ class Phone_Book:
             if re.search(target, line_1[search_targets]) != None:
                 answer.add(line_1[0])
                 self.searching_table.add_row(line_1)
-        print(self.searching_table)
+        print("Найденные поля:\n", self.searching_table)
         if not answer:
             print("Ничего не найдено\n")
         return answer
@@ -236,11 +239,13 @@ class Phone_Book:
         :returns: None
 
         """
+        self.searching_table.clear_rows()
         for match in ans:
             for answer_line in self.splited_list:
                 if answer_line[0] == match:
                     self.searching_table.add_row(answer_line)
-        print(self.searching_table)
+        print("Результат поиска:\n", self.searching_table)
+
 
 if __name__ == "__main__":
     our_book = Phone_Book()
