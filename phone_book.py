@@ -1,5 +1,4 @@
 import re
-
 from prettytable import PrettyTable
 
 
@@ -11,8 +10,11 @@ class Phone_Book:
 
     """
 
-    def __init__(self):
-        """Функция содержащая шаблон таблицы для вывода в консоль, индексы полей таблицы и текущее максимальное значение индекса."""
+    def __init__(self) -> None:
+        """Функция содержащая шаблон таблицы для вывода в консоль, индексы полей таблицы и текущее максимальное значение индекса.
+        Вызывается при запуске программы, после установки значений переменных запускает функцию initializing
+        
+        """
 
         self.table_sample = PrettyTable()
         self.table_sample.field_names = ["ID", "Фамилия", "Имя", "Отчество", "Компания", "Домашний телефон",
@@ -22,11 +24,10 @@ class Phone_Book:
                       "Мобильный телефон": 6}
         self.clear_lines = []
         self.splited_list = []
-
         self.initializing()
 
     def custom_input(self, prompt: str) -> int:
-        """Функция, допускающая ввод только цифр, и выдающая сообщение об ошибке при обратном.
+        """Функция осуществляющая заполнение большинства полей в программе. Допускает ввод только цифр, выдает сообщение об ошибке при обратном.
         Принимает строку с инструкцией к вводу - возвращает число.
 
         :return: int
@@ -42,10 +43,10 @@ class Phone_Book:
 
     def show_line(self, all_lines: list, to_show: int) -> None:
         """Функция, получающая лист с текущим содержанием текстового файла "Data.txt" и число строк к выводу.
-         В результате - выводит таблицу с указанным числом строк в вывод.
-         Также производит сортировку содержимого таблицы с выводом результата на экран.
+        В результате - выводит таблицу с указанным числом строк в вывод.
+        Также производит сортировку содержимого таблицы с выводом результата на экран.
 
-         :return: None
+        :return: None
 
          """
 
@@ -101,6 +102,7 @@ class Phone_Book:
          :returns: None
 
          """
+        
         self.editing_table = PrettyTable(align="l")
         self.editing_table.field_names = self.table_sample.field_names
         str_counter = -1
@@ -142,7 +144,7 @@ class Phone_Book:
     def initializing(self) -> None:
         """Функция просматривает все строки текстового файла и модифицирует переменную, указывающую на максимальный
         используемый индекс. Предлагает использовать возможные функции или завершить работу программы.
-         Вызывается после запуска программы и каждого изменения текстового файла.
+        Вызывается после запуска программы а также каждого изменения текстового файла.
 
         :returns: None
 
@@ -155,7 +157,7 @@ class Phone_Book:
             self.splited_list = [elem.split("\t") for elem in self.clear_lines]
             self.indexses = [int(self.splited_list[i][0][3:]) for i in range(len(list_data))]
             self.number_of_records = max(self.indexses)
-            self.input_options()
+        self.input_options()
 
     def input_options(self) -> None:
         """Функция, запускающая методы класса в зависимости от ввода пользователя.
@@ -215,6 +217,7 @@ class Phone_Book:
         :returns: set
 
         """
+        
         self.searching_table.clear_rows()
         search_targets = self.custom_input(
             "Введите код поля, по которому искать. ID: 0, Фамилия: 1, Имя: 2, Отчество: 3, Компания: 4, Домашний телефон: 5, Мобильный телефон: 6 \n")
@@ -235,6 +238,7 @@ class Phone_Book:
         :returns: None
 
         """
+        
         self.searching_table.clear_rows()
         for match in ans:
             for answer_line in self.splited_list:
