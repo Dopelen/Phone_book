@@ -13,7 +13,7 @@ class Phone_Book:
     def __init__(self) -> None:
         """Функция содержащая шаблон таблицы для вывода в консоль, индексы полей таблицы и текущее максимальное значение индекса.
         Вызывается при запуске программы, после установки значений переменных запускает функцию initializing
-        
+
         """
 
         self.table_sample = PrettyTable()
@@ -60,7 +60,7 @@ class Phone_Book:
         print(current_table)
         sort_check = self.custom_input(
             "Чтобы отсортировать таблицу, введите индекс поля, по которому производить сортировку. Чтобы продолжить - введитe:'9'\n")
-        if sort_check in range(1, 7):
+        if sort_check in range(0, 7):
             current_table.sortby = current_table.field_names[sort_check]
             print(current_table)
         else:
@@ -102,7 +102,7 @@ class Phone_Book:
          :returns: None
 
          """
-        
+
         self.editing_table = PrettyTable(align="l")
         self.editing_table.field_names = self.table_sample.field_names
         str_counter = -1
@@ -118,8 +118,8 @@ class Phone_Book:
                     self.editing_table.add_row(edit_list_for_edit)
                     print(self.editing_table)
                     edit_helper = self.custom_input(
-                        "Введите код поля, которое нуждается в корректировке. ID: 0, Фамилия: 1, Имя: 2, Отчество: 3, Компания: 4, Домашний телефон: 5, Мобильный телефон: 6 \n")
-                    if edit_helper not in range(0, 7):
+                        "Введите код поля, которое нуждается в корректировке. ID: 0, Фамилия: 1, Имя: 2, Отчество: 3, Компания: 4, Домашний телефон: 5, Мобильный телефон: 6, Удалить строку: 7 \n")
+                    if edit_helper not in range(0, 8):
                         print("Указанный индекс не соответствует имеющимся полям")
                         break
                     if edit_helper == 0:
@@ -129,14 +129,19 @@ class Phone_Book:
                             print("Ошибка. Данный индекс уже используется")
                             break
                         edit_check = "ID_" + str(edit_check)
+                    elif edit_helper == 7:
+                        edit_list_from_file.pop(str_counter)
+                        edit_check = ""
                     else:
                         edit_check = input("Введите новое значение\n")
-                    edit_list_for_edit[edit_helper] = edit_check
-                    edit_list_from_file[str_counter] = "\t".join(edit_list_for_edit) + "\n"
+                    if edit_check != "":
+                        edit_list_for_edit[edit_helper] = edit_check
+                        edit_list_from_file[str_counter] = "\t".join(edit_list_for_edit) + "\n"
                     with open("Data.txt", "w") as final_edit:
                         final_edit.writelines(edit_list_from_file)
                         self.editing_table.clear_rows()
                         break
+
             if not Finded:
                 print("Искомая строка не найдена")
         self.initializing()
@@ -217,7 +222,7 @@ class Phone_Book:
         :returns: set
 
         """
-        
+
         self.searching_table.clear_rows()
         search_targets = self.custom_input(
             "Введите код поля, по которому искать. ID: 0, Фамилия: 1, Имя: 2, Отчество: 3, Компания: 4, Домашний телефон: 5, Мобильный телефон: 6 \n")
@@ -238,7 +243,7 @@ class Phone_Book:
         :returns: None
 
         """
-        
+
         self.searching_table.clear_rows()
         for match in ans:
             for answer_line in self.splited_list:
