@@ -35,7 +35,7 @@ NOTE:
 https://github.com/Dopelen/Phone_book/assets/141639888/b3e4290c-6a21-446f-a3c3-4281a82c8cf4
 
 
-### Блоак-схема работы функций
+### Блок-схема работы функций
 
 ```mermaid
 stateDiagram-v2
