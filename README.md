@@ -35,6 +35,14 @@ NOTE:
 https://github.com/Dopelen/Phone_book/assets/141639888/b3e4290c-6a21-446f-a3c3-4281a82c8cf4
 
 
+### Запуск программы
+Внутри программы используется модуль [PrettyTable](https://pypi.org/project/prettytable/)
+Который может быть установлен через консоль командой 
+
+```python
+python -m pip install -U prettytable'
+```
+
 ### Блок-схема работы функций
 
 ```mermaid
