@@ -37,13 +37,14 @@ https://github.com/Dopelen/Phone_book/assets/141639888/b3e4290c-6a21-446f-a3c3-4
 
 ### Запуск программы
 Помимо стандартных модулей python, внутри программы используется модуль [PrettyTable](https://pypi.org/project/prettytable/)
-Который может быть установлен через консоль командой 
+
+Он может быть установлен через консоль командой: 
 
 ```python
 python -m pip install -U prettytable'
 ```
 
-Также доступна установка с использованием requirements.txt
+Доступна установка с использованием requirements.txt:
 ```python
 pip install -r requirements.txt
 ```
