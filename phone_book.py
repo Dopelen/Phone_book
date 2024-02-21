@@ -1,4 +1,6 @@
 import re
+from typing import Union
+
 from prettytable import PrettyTable
 
 
@@ -10,36 +12,66 @@ class Phone_Book:
 
     """
 
-    def __init__(self) -> None:
+    def __init__(self, initialize: bool = True) -> None:
         """Функция содержащая шаблон таблицы для вывода в консоль, индексы полей таблицы и текущее максимальное значение индекса.
-        Вызывается при запуске программы, после установки значений переменных запускает функцию initializing
+        Вызывается при запуске программы, после установки значений переменных запускает функцию initializing,
+        возможно передача в функцию initialize=False, для предотвращения конструирования вывода, и облегчения тестирования.
+
+        :returns: None
 
         """
 
-        self.table_sample = PrettyTable()
-        self.table_sample.field_names = ["ID", "Фамилия", "Имя", "Отчество", "Компания", "Домашний телефон",
-                                         "Мобильный телефон"]
+        self.table_template = PrettyTable()
+        self.table_template.field_names = ["ID", "Фамилия", "Имя", "Отчество", "Компания", "Домашний телефон",
+                                           "Мобильный телефон"]
         self.number_of_records = 0
         self.codes = {"ID": 0, "Фамилия": 1, "Имя": 2, "Отчество": 3, "Компания": 4, "Домашний телефон": 5,
                       "Мобильный телефон": 6}
         self.clear_lines = []
         self.splited_list = []
-        self.initializing()
+        if initialize:
+            self.initializing()
 
-    def custom_input(self, prompt: str) -> int:
-        """Функция осуществляющая заполнение большинства полей в программе. Допускает ввод только цифр, выдает сообщение об ошибке при обратном.
-        Принимает строку с инструкцией к вводу - возвращает число.
+    def custom_input(self, prompt: str, marker: int = 0, test_mode: str = '') -> Union[int, str]:
+        """Функция осуществляющая заполнение полей в программе. Допускает ввод определенных символов
+        в зависимости от полученных аргументов, выдает сообщение об ошибке при обратном.
+        Принимает строку с инструкцией к вводу указатель типа поля возвращает число или строку в зависимости от указателя.
+        Обладает параметром test_mode имитирующим ввод для тестирования.
 
-        :return: int
+        :return: Union[int, str]
 
         """
 
         while True:
-            user_input = input(prompt)
-            if user_input.isdigit():
-                return int(user_input)
+            if test_mode == "":
+                user_input = input(prompt)
             else:
-                print("Введенный символ не является числом. Повторите попытку")
+                user_input = test_mode
+            if marker == 0:
+                if user_input.isdigit():
+                    return int(user_input)
+                else:
+                    print("Введенный символ не является числом. Повторите попытку")
+            elif marker == 1:
+                name_pattern = r'^[A-Za-z0-9_А-Яа-я-&]{1,40}$'
+                if re.match(name_pattern, user_input):
+                    return str(user_input)
+                else:
+                    print(
+                        "Данное поле начинается со строчных и прописных букв, может включать цифры, символы '_', '-', и '&', длинной до 40 символов")
+            elif marker == 2:
+                name_pattern = r'^\+?\d{1,16}$'
+                if re.match(name_pattern, user_input):
+                    return str(user_input)
+                else:
+                    print("Проверьте введенный текст на соответствие формату: ""+(опционально) от 1 до 16 цифр""")
+            elif marker == 3:
+                if user_input.isdigit() or user_input == "*":
+                    return user_input
+                else:
+                    print("Введенный символ не является числом или '*'. Повторите попытку")
+            if test_mode != '':
+                return "ERROR"
 
     def show_line(self, all_lines: list, to_show: int) -> None:
         """Функция, получающая лист с текущим содержанием текстового файла "Data.txt" и число строк к выводу.
@@ -51,7 +83,7 @@ class Phone_Book:
          """
 
         current_table = PrettyTable(align="l")
-        current_table.field_names = self.table_sample.field_names
+        current_table.field_names = self.table_template.field_names
         amount_of_data = len(all_lines)
         if to_show > amount_of_data:
             to_show = amount_of_data
@@ -78,13 +110,13 @@ class Phone_Book:
          """
 
         test_table = PrettyTable(align="l")
-        test_table.field_names = self.table_sample.field_names
+        test_table.field_names = self.table_template.field_names
         with open("Data.txt", "a") as p_book_a:
-            self.number_of_records += 1
-            new_line_view = ["ID_" + str(self.number_of_records), input("Введите фамилию "), input(
-                "Имя "), input(
-                "Отчество "), input("Название компании "), input(
-                "Домашний телефон "), input("Мобильный телефон ")]
+            new_line_view = ["ID_" + str(self.number_of_records + 1), self.custom_input("Введите фамилию ", 1),
+                             self.custom_input(
+                                 "Имя ", 1), self.custom_input(
+                    "Отчество ", 1), self.custom_input("Название компании ", 1), self.custom_input(
+                    "Домашний телефон ", 2), self.custom_input("Мобильный телефон ", 2)]
             new_line_text = "\n" + "\t".join(new_line_view)
             test_table.add_row(new_line_view)
             print("Добавить данную строку в файл?\n", test_table)
@@ -104,7 +136,7 @@ class Phone_Book:
          """
 
         self.editing_table = PrettyTable(align="l")
-        self.editing_table.field_names = self.table_sample.field_names
+        self.editing_table.field_names = self.table_template.field_names
         str_counter = -1
         Finded = False
         target_for_edit = self.custom_input("Введите числовое значение индекса строки, которую хотите изменить\n")
@@ -118,9 +150,9 @@ class Phone_Book:
                     self.editing_table.add_row(edit_list_for_edit)
                     print(self.editing_table)
                     edit_helper = self.custom_input(
-                        "Введите код поля, которое нуждается в корректировке. ID: 0, Фамилия: 1, Имя: 2, Отчество: 3, Компания: 4, Домашний телефон: 5, Мобильный телефон: 6, Удалить строку: 7 \n")
+                        "Введите код поля, которое нуждается в корректировке или 7 для удаления строки. ID: 0, Фамилия: 1, Имя: 2, Отчество: 3, Компания: 4, Домашний телефон: 5, Мобильный телефон: 6, Удалить строку: 7 \n")
                     if edit_helper not in range(0, 8):
-                        print("Указанный индекс не соответствует имеющимся полям")
+                        print("Код вне диапазона 0-7")
                         break
                     if edit_helper == 0:
                         edit_check = self.custom_input(
@@ -130,13 +162,18 @@ class Phone_Book:
                             break
                         edit_check = "ID_" + str(edit_check)
                     elif edit_helper == 7:
-                        edit_list_from_file.pop(str_counter)
+                        delited = edit_list_from_file.pop(str_counter)
                         edit_check = ""
                     else:
-                        edit_check = input("Введите новое значение\n")
+                        if edit_helper in range(1, 5):
+                            edit_check = self.custom_input("Введите новое значение\n", 1)
+                        else:
+                            edit_check = self.custom_input("Введите новое значение\n", 2)
                     if edit_check != "":
                         edit_list_for_edit[edit_helper] = edit_check
-                        edit_list_from_file[str_counter] = "\t".join(edit_list_for_edit) + "\n"
+                        edit_list_from_file[str_counter] = "\t".join(edit_list_for_edit)
+                    else:
+                        print(f"Строка\n{delited}\nбыла удалена\n")
                     with open("Data.txt", "w") as final_edit:
                         final_edit.writelines(edit_list_from_file)
                         self.editing_table.clear_rows()
@@ -149,7 +186,7 @@ class Phone_Book:
     def initializing(self) -> None:
         """Функция просматривает все строки текстового файла и модифицирует переменную, указывающую на максимальный
         используемый индекс. Предлагает использовать возможные функции или завершить работу программы.
-        Вызывается после запуска программы а также каждого изменения текстового файла.
+        Вызывается после запуска программы, а также каждого изменения текстового файла.
 
         :returns: None
 
@@ -174,19 +211,17 @@ class Phone_Book:
         code_of_action = self.custom_input(
             "Введите:\n1. Для отображения таблицы\n2. Для поиска внутри таблицы\n3. Для добавления строки в таблицу\n4. Для редактирования строк таблицы\n5. Для выхода\n\n")
         if code_of_action == 1:
-            check_lenght = input("Введите число строк для отображения. Для отображения всего файла введите '*'\n")
+            check_lenght = self.custom_input(
+                "Введите число строк для отображения. Для отображения всего файла введите '*'\n", 3)
             if check_lenght == "*":
                 to_show = len(self.splited_list)
             elif check_lenght.isdigit():
                 to_show = int(check_lenght)
-            else:
-                print("Введенный символ не является числом. Отмена операции\n")
-                self.input_options()
             self.show_line(self.splited_list, to_show)
 
         elif code_of_action == 2:
             self.searching_table = PrettyTable(align="l")
-            self.searching_table.field_names = self.table_sample.field_names
+            self.searching_table.field_names = self.table_template.field_names
             field_amount = self.custom_input("По скольким полям искать? \n")
             intermediate_result = self.searching()
             if field_amount != 1:
@@ -205,7 +240,6 @@ class Phone_Book:
 
         elif code_of_action == 5:
             return
-
         else:
             print("Неизвестный код, попробуйте ещё\n")
             self.input_options()
